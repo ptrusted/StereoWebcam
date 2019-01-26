@@ -62,7 +62,7 @@ namespace Stereo_Webcam
             public float Y; // World position in y axis.
             public float Z; // World position in z axis.
         }
-        public static Descriptor[] ObjectDescLeft, ObjectDescRight;
+        public Descriptor[] ObjectDescLeft, ObjectDescRight;
         /// <summary>
         /// Final output of processed left and right image.
         /// </summary>
@@ -71,6 +71,16 @@ namespace Stereo_Webcam
         /// Options form.
         /// </summary>
         public OptionsPanel OptionsControl;
+        /// <summary>
+        /// Vector object consisted of three floating number.
+        /// </summary>
+        public struct Vector3f
+        {
+            public float X;
+            public float Y;
+            public float Z;
+        }
+        public static Vector3f[] OutputVectors;
 
 
         // ==========================================================================
@@ -174,6 +184,11 @@ namespace Stereo_Webcam
         {
             if (CameraReady)
             {
+                OutputVectors = new Vector3f[9];
+                for (int a = 0; a < OutputVectors.Length; a++)
+                {
+                    OutputVectors[a].X = 0f; OutputVectors[a].Y = 0f; OutputVectors[a].Z = 0f;
+                }
                 ProcessedImage = new Bitmap(640, 480);
                 FilterSaturateLeft = new SaturationCorrection(OptionsControl.SaturationLeft.Value / 10f);
                 FilterSaturateRight = new SaturationCorrection(OptionsControl.SaturationRight.Value / 10f);
@@ -344,38 +359,45 @@ namespace Stereo_Webcam
                                     //        minER = eR;
                                     //        minEG = eG;
                                     //        minEB = eB;
-                                            ObjectDescLeft[a].Z = CalculateDepth(
-                                                (float)OptionsControl.CameraDistance.Value,
-                                                (float)OptionsControl.FocalLength.Value,
-                                                ObjectDescLeft[a].x,
-                                                ObjectDescRight[b].x,
-                                                ObjectDescLeft[a].y,
-                                                ObjectDescRight[b].y
-                                            );
-                                            ObjectDescLeft[a].X = CalculatePos(
-                                                (float)OptionsControl.FocalLength.Value,
-                                                ObjectDescLeft[a].Z,
-                                                (float)OptionsControl.CameraDistance.Value,
-                                                Wdth / 2,
-                                                ObjectDescLeft[a].x
-                                            );
-                                            ObjectDescLeft[a].Y = -CalculatePos(
-                                                (float)OptionsControl.FocalLength.Value,
-                                                ObjectDescLeft[a].Z,
-                                                (float)OptionsControl.CameraDistance.Value,
-                                                Hght / 2,
-                                                ObjectDescLeft[a].y
-                                            );
-                                            txt = a.ToString() + " with " + b.ToString() + "\n" +
-                                                ObjectDescLeft[a].X.ToString() + "\n" +
-                                                ObjectDescLeft[a].Y.ToString() + "\n" +
-                                                ObjectDescLeft[a].Z.ToString();
-                                        //}
+                                    ObjectDescLeft[a].Z = CalculateDepth(
+                                        (float)OptionsControl.CameraDistance.Value,
+                                        (float)OptionsControl.FocalLength.Value,
+                                        ObjectDescLeft[a].x,
+                                        ObjectDescRight[b].x,
+                                        ObjectDescLeft[a].y,
+                                        ObjectDescRight[b].y
+                                    );
+                                    ObjectDescLeft[a].X = CalculatePos(
+                                        (float)OptionsControl.FocalLength.Value,
+                                        ObjectDescLeft[a].Z,
+                                        (float)OptionsControl.CameraDistance.Value,
+                                        Wdth / 2,
+                                        ObjectDescLeft[a].x
+                                    );
+                                    ObjectDescLeft[a].Y = -CalculatePos(
+                                        (float)OptionsControl.FocalLength.Value,
+                                        ObjectDescLeft[a].Z,
+                                        (float)OptionsControl.CameraDistance.Value,
+                                        Hght / 2,
+                                        ObjectDescLeft[a].y
+                                    );
+                                    txt = a.ToString() + " with " + b.ToString() + "\n" +
+                                        ObjectDescLeft[a].X.ToString() + "\n" +
+                                        ObjectDescLeft[a].Y.ToString() + "\n" +
+                                        ObjectDescLeft[a].Z.ToString();
+                                    OutputVectors[ObjectDescLeft[a].ColorClass-1].X = ObjectDescLeft[a].X;
+                                    OutputVectors[ObjectDescLeft[a].ColorClass-1].Y = ObjectDescLeft[a].Y;
+                                    OutputVectors[ObjectDescLeft[a].ColorClass-1].Z = ObjectDescLeft[a].Z;
+                                    //}
                                     //}
                                 }
                             }
-                            g.DrawRectangle(pen, ObjectsLeft[a]);
-                            g.DrawString(txt, font, brush, ObjectsLeft[a].X, ObjectsLeft[a].Y);
+                            g.DrawRectangle(
+                                pen,
+                                (int)(ObjectsLeft[a].X / 1.454545), (int)(ObjectsLeft[a].Y / 1.454545),
+                                ObjectsLeft[a].Width / 2, ObjectsLeft[a].Height / 2);
+                            g.DrawString(txt, font, brush,
+                                (int)(ObjectsLeft[a].X / 1.454545), (int)(ObjectsLeft[a].Y / 1.454545));
                         }
                     } catch (IndexOutOfRangeException e)
                     {
@@ -474,9 +496,9 @@ namespace Stereo_Webcam
                 if (totalR > totalB)
                 {
                     if (desc.PercentG > 10f)
-                        desc.ColorClass = 10;
+                        desc.ColorClass = 4;
                     else if (desc.PercentB > 10f)
-                        desc.ColorClass = 11;
+                        desc.ColorClass = 5;
                     else
                         desc.ColorClass = 1;//(int)Math.Ceiling(desc.RedMean / 85f);
                     desc.ColorMean = Color.Red; // Save color value.
@@ -484,9 +506,9 @@ namespace Stereo_Webcam
                 else
                 {
                     if (desc.PercentR > 10f)
-                        desc.ColorClass = 14;
+                        desc.ColorClass = 8;
                     else if (desc.PercentG > 10f)
-                        desc.ColorClass = 15;
+                        desc.ColorClass = 9;
                     else
                         desc.ColorClass = 3;//(int)Math.Ceiling(desc.BlueMean / 85f) + 6;
                     desc.ColorMean = Color.Blue; // Save color value.
@@ -497,9 +519,9 @@ namespace Stereo_Webcam
                 if (totalG > totalB)
                 {
                     if (desc.PercentR > 10f)
-                        desc.ColorClass = 12;
+                        desc.ColorClass = 6;
                     else if (desc.PercentB > 10f)
-                        desc.ColorClass = 13;
+                        desc.ColorClass = 7;
                     else
                         desc.ColorClass = 2;//(int)Math.Ceiling(desc.GreenMean / 85f) + 3;
                     desc.ColorMean = Color.Green; // Save color value.
@@ -507,9 +529,9 @@ namespace Stereo_Webcam
                 else
                 {
                     if (desc.PercentR > 10f)
-                        desc.ColorClass = 14;
+                        desc.ColorClass = 8;
                     else if (desc.PercentG > 10f)
-                        desc.ColorClass = 15;
+                        desc.ColorClass = 9;
                     else
                         desc.ColorClass = 3;
                     desc.ColorMean = Color.Blue; // Save color value.

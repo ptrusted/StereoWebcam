@@ -52,6 +52,9 @@
     <Reference Include="SharpGL">
       <HintPath>D:\Duty\Master 1\3D Modelling\sharpgl-master\Samples\ModernOpenGLSample\SharpGL.dll</HintPath>
     </Reference>
+    <Reference Include="SharpGL.SceneGraph">
+      <HintPath>D:\Duty\Master 1\3D Modelling\sharpgl-master\Samples\ModernOpenGLSample\SharpGL.SceneGraph.dll</HintPath>
+    </Reference>
     <Reference Include="SharpGL.WinForms">
       <HintPath>D:\Duty\Master 1\3D Modelling\sharpgl-master\Samples\ModernOpenGLSample\SharpGL.WinForms.dll</HintPath>
     </Reference>

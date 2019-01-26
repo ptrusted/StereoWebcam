@@ -39,9 +39,9 @@
             // 
             this.ViewFinder.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.ViewFinder.BackColor = System.Drawing.SystemColors.Window;
-            this.ViewFinder.Location = new System.Drawing.Point(31, 5);
+            this.ViewFinder.Location = new System.Drawing.Point(316, 393);
             this.ViewFinder.Name = "ViewFinder";
-            this.ViewFinder.Size = new System.Drawing.Size(640, 480);
+            this.ViewFinder.Size = new System.Drawing.Size(440, 330);
             this.ViewFinder.TabIndex = 0;
             this.ViewFinder.TabStop = false;
             // 
@@ -49,9 +49,9 @@
             // 
             this.CameraView1.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.CameraView1.BackColor = System.Drawing.SystemColors.Window;
-            this.CameraView1.Location = new System.Drawing.Point(31, 485);
+            this.CameraView1.Location = new System.Drawing.Point(33, 12);
             this.CameraView1.Name = "CameraView1";
-            this.CameraView1.Size = new System.Drawing.Size(320, 240);
+            this.CameraView1.Size = new System.Drawing.Size(500, 375);
             this.CameraView1.TabIndex = 1;
             this.CameraView1.TabStop = false;
             this.CameraView1.VideoSource = null;
@@ -61,9 +61,9 @@
             // 
             this.CameraView2.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.CameraView2.BackColor = System.Drawing.SystemColors.Window;
-            this.CameraView2.Location = new System.Drawing.Point(351, 485);
+            this.CameraView2.Location = new System.Drawing.Point(539, 12);
             this.CameraView2.Name = "CameraView2";
-            this.CameraView2.Size = new System.Drawing.Size(320, 240);
+            this.CameraView2.Size = new System.Drawing.Size(500, 375);
             this.CameraView2.TabIndex = 2;
             this.CameraView2.TabStop = false;
             this.CameraView2.VideoSource = null;
@@ -73,7 +73,7 @@
             // 
             this.KeyInfo.AutoSize = true;
             this.KeyInfo.ForeColor = System.Drawing.Color.Yellow;
-            this.KeyInfo.Location = new System.Drawing.Point(28, 472);
+            this.KeyInfo.Location = new System.Drawing.Point(313, 393);
             this.KeyInfo.Name = "KeyInfo";
             this.KeyInfo.Size = new System.Drawing.Size(317, 13);
             this.KeyInfo.TabIndex = 3;
@@ -84,7 +84,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.ClientSize = new System.Drawing.Size(700, 749);
+            this.ClientSize = new System.Drawing.Size(1084, 733);
             this.Controls.Add(this.KeyInfo);
             this.Controls.Add(this.CameraView2);
             this.Controls.Add(this.CameraView1);

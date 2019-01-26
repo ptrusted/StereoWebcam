@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using SharpGL;
+using SharpGL.SceneGraph.Assets;
 
 namespace Stereo_Webcam
 {
@@ -17,6 +18,7 @@ namespace Stereo_Webcam
         OpenGL TheOpenGL;
         float[] Translation;
         float[] Rotation;
+        Texture Background, Foreground, Actor1, Actor2, Actor3;
 
         public _3DView()
         {
@@ -26,8 +28,13 @@ namespace Stereo_Webcam
         private void SharpGL_Load(object o, EventArgs e)
         {
             TheOpenGL = this.ViewPort.OpenGL;
-            Translation = new float[3] { 0f, 0.25f, -1.5f };
-            Rotation = new float[3] { 15f, 0f, 0f };
+            Translation = new float[3] { 0f, 0f, -1.5f };
+            Rotation = new float[3] { 0f, 0f, 0f };
+            Background = new Texture(); Background.Create(TheOpenGL, "Theater Background 1.png");
+            Foreground = new Texture(); Foreground.Create(TheOpenGL, "Theater Foreground 1.png");
+            Actor1 = new Texture(); Actor1.Create(TheOpenGL, "Theater Actor 1.png");
+            Actor2 = new Texture(); Actor2.Create(TheOpenGL, "Theater Actor 2.png");
+            Actor3 = new Texture(); Actor3.Create(TheOpenGL, "Theater Actor 3.png");
         }
 
         private void SharpGL_Render(object o, RenderEventArgs e)
@@ -37,58 +44,26 @@ namespace Stereo_Webcam
             TheOpenGL.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
             // Reset The View
             TheOpenGL.LoadIdentity();
+            // Re-Enable texture.
+            TheOpenGL.Enable(OpenGL.GL_TEXTURE_2D);
+            // Enable blend function.
+            TheOpenGL.Enable(OpenGL.GL_BLEND);
+            TheOpenGL.BlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA);
+
             TheOpenGL.MatrixMode(SharpGL.Enumerations.MatrixMode.Modelview);
             TheOpenGL.Translate(Translation[0], Translation[1], Translation[2]);
             TheOpenGL.Rotate(Rotation[0], 1, 0, 0);
             TheOpenGL.Rotate(Rotation[1], 0, 1, 0);
             TheOpenGL.Rotate(Rotation[2], 0, 0, 1);
+            // ########################################################################################
+            // ########################################################################################
 
-            TheOpenGL.PointSize(15f);
-            TheOpenGL.Begin(SharpGL.Enumerations.BeginMode.Points);
-            for (int a = 0; a < MainForm.ObjectDescLeft.Length; a++)
-            {
-                TheOpenGL.Color(
-                    MainForm.ObjectDescLeft[a].ColorMean.R / 255f,
-                    MainForm.ObjectDescLeft[a].ColorMean.G / 255f,
-                    MainForm.ObjectDescLeft[a].ColorMean.B / 255f);
-                TheOpenGL.Vertex(MainForm.ObjectDescLeft[a].X, MainForm.ObjectDescLeft[a].Y, -MainForm.ObjectDescLeft[a].Z);
-            }
-            TheOpenGL.End();
+            DrawBackground();
+            DrawActors();
+            DrawForeground();
 
-            TheOpenGL.LineWidth(1.5f);
-            TheOpenGL.Begin(SharpGL.Enumerations.BeginMode.Lines);
-            for (int a = 0; a < MainForm.ObjectDescLeft.Length; a++)
-            {
-                TheOpenGL.Color(1f, 1f, 1f);
-                TheOpenGL.Vertex(MainForm.ObjectDescLeft[a].X, MainForm.ObjectDescLeft[a].Y, -MainForm.ObjectDescLeft[a].Z);
-                if (a < MainForm.ObjectDescLeft.Length-1)
-                    TheOpenGL.Vertex(MainForm.ObjectDescLeft[a+1].X, MainForm.ObjectDescLeft[a+1].Y, -MainForm.ObjectDescLeft[a+1].Z);
-                else
-                    TheOpenGL.Vertex(MainForm.ObjectDescLeft[0].X, MainForm.ObjectDescLeft[0].Y, -MainForm.ObjectDescLeft[0].Z);
-            }
-            TheOpenGL.End();
-
-            TheOpenGL.Enable(OpenGL.GL_BLEND); // Enable blend function.
-            TheOpenGL.BlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA);
-            TheOpenGL.Begin(SharpGL.Enumerations.BeginMode.Quads);
-            // Plane.
-            TheOpenGL.Color(1f, 1f, 1f, 0.1f);
-            TheOpenGL.Vertex(-1f, 0f, -1f);
-            TheOpenGL.Vertex(1f, 0f, -1f);
-            TheOpenGL.Vertex(1f, 0f, 1f);
-            TheOpenGL.Vertex(-1f, 0f, 1f);
-            // Center.
-            TheOpenGL.Color(1f, 1f, 1f, 0.1f);
-            TheOpenGL.Vertex(-0.05f, 0.01f, -0.05f);
-            TheOpenGL.Vertex(0.05f, 0.01f, -0.05f);
-            TheOpenGL.Vertex(0.05f, 0.01f, 0.05f);
-            TheOpenGL.Vertex(-0.05f, 0.01f, 0.05f);
-            TheOpenGL.Vertex(-0.025f, 0.01f, 0.05f);
-            TheOpenGL.Vertex(0.025f, 0.01f, 0.05f);
-            TheOpenGL.Vertex(0.025f, 0.01f, -0.1f);
-            TheOpenGL.Vertex(-0.025f, 0.01f, -0.1f);
-            TheOpenGL.End();
-
+            // ########################################################################################
+            // ########################################################################################
             TheOpenGL.Flush();
         }
 
@@ -123,6 +98,93 @@ namespace Stereo_Webcam
                 Rotation[2] -= 5f;
             else if (e.KeyCode == Keys.O)
                 Rotation[2] += 5f;
+        }
+
+        private void DrawBackground()
+        {
+            TheOpenGL.PushMatrix();
+            TheOpenGL.Translate(0f, 0f, -1f);
+            TheOpenGL.Scale(2f, 2f, 2f);
+            //TheOpenGL.Rotate(MainForm.OutputVectors[0].X, MainForm.OutputVectors[0].Y, MainForm.OutputVectors[0].Z);
+            Background.Bind(TheOpenGL);
+            TheOpenGL.Begin(OpenGL.GL_QUADS);
+            TheOpenGL.Color(1f, 1f, 1f);
+            TheOpenGL.TexCoord(0f, 1f); TheOpenGL.Vertex(-(1.280f / 2),-(0.720f / 2), 0f);
+            TheOpenGL.TexCoord(1f, 1f); TheOpenGL.Vertex((1.280f / 2),-(0.720f / 2), 0f);
+            TheOpenGL.TexCoord(1f, 0f); TheOpenGL.Vertex((1.280f / 2),(0.720f / 2), 0f);
+            TheOpenGL.TexCoord(0f, 0f); TheOpenGL.Vertex(-(1.280f / 2),(0.720f / 2), 0f);
+            TheOpenGL.End();
+            TheOpenGL.PopMatrix();
+        }
+
+        private void DrawActors()
+        {
+            // Actor 1.
+            TheOpenGL.PushMatrix();
+            TheOpenGL.Translate(MainForm.OutputVectors[3].X*5f, MainForm.OutputVectors[3].Y*5f, -MainForm.OutputVectors[3].Z);
+            TheOpenGL.Rotate(0f, 0f,
+                (float)Math.Atan(
+                (MainForm.OutputVectors[3].Y - MainForm.OutputVectors[4].Y) /
+                (MainForm.OutputVectors[3].X - MainForm.OutputVectors[4].X)
+                ) * 180f / (float)Math.PI
+                );
+            Actor1.Bind(TheOpenGL);
+            TheOpenGL.Begin(OpenGL.GL_QUADS);
+            TheOpenGL.Color(1f, 1f, 1f);
+            TheOpenGL.TexCoord(0f, 1f); TheOpenGL.Vertex(-(0.239f / 2), -(0.326f / 2), 0f);
+            TheOpenGL.TexCoord(1f, 1f); TheOpenGL.Vertex((0.239f / 2), -(0.326f / 2), 0f);
+            TheOpenGL.TexCoord(1f, 0f); TheOpenGL.Vertex((0.239f / 2), (0.326f / 2), 0f);
+            TheOpenGL.TexCoord(0f, 0f); TheOpenGL.Vertex(-(0.239f / 2), (0.326f / 2), 0f);
+            TheOpenGL.End();
+            TheOpenGL.PopMatrix();
+            // Actor 2.
+            TheOpenGL.PushMatrix();
+            TheOpenGL.Translate(MainForm.OutputVectors[5].X*5f, MainForm.OutputVectors[5].Y*5f, -MainForm.OutputVectors[5].Z);
+            TheOpenGL.Rotate(0f, 0f,
+                (float)Math.Atan(
+                (MainForm.OutputVectors[6].Y - MainForm.OutputVectors[5].Y) /
+                (MainForm.OutputVectors[6].X - MainForm.OutputVectors[5].X)
+                ) * 180f / (float)Math.PI
+                );
+            Actor2.Bind(TheOpenGL);
+            TheOpenGL.Begin(OpenGL.GL_QUADS);
+            TheOpenGL.Color(1f, 1f, 1f);
+            TheOpenGL.TexCoord(0f, 1f); TheOpenGL.Vertex(-(0.239f / 2), -(0.326f / 2), 0f);
+            TheOpenGL.TexCoord(1f, 1f); TheOpenGL.Vertex((0.239f / 2), -(0.326f / 2), 0f);
+            TheOpenGL.TexCoord(1f, 0f); TheOpenGL.Vertex((0.239f / 2), (0.326f / 2), 0f);
+            TheOpenGL.TexCoord(0f, 0f); TheOpenGL.Vertex(-(0.239f / 2), (0.326f / 2), 0f);
+            TheOpenGL.End();
+            TheOpenGL.PopMatrix();
+            // Actor 3.
+            //TheOpenGL.PushMatrix();
+            //TheOpenGL.Translate(MainForm.OutputVectors[5].X, MainForm.OutputVectors[5].Y, -MainForm.OutputVectors[5].Z);
+            //TheOpenGL.Rotate(0f, 0f,
+            //    (float)Math.Atan(
+            //    (MainForm.OutputVectors[6].Y - MainForm.OutputVectors[5].Y) /
+            //    (MainForm.OutputVectors[6].X - MainForm.OutputVectors[5].X)
+            //    ) * 180f / (float)Math.PI
+            //    );
+            //Actor3.Bind(TheOpenGL);
+            //TheOpenGL.Begin(OpenGL.GL_QUADS);
+            //TheOpenGL.Color(1f, 1f, 1f);
+            //TheOpenGL.TexCoord(0f, 1f); TheOpenGL.Vertex(-(0.239f / 2), -(0.326f / 2), 0f);
+            //TheOpenGL.TexCoord(1f, 1f); TheOpenGL.Vertex((0.239f / 2), -(0.326f / 2), 0f);
+            //TheOpenGL.TexCoord(1f, 0f); TheOpenGL.Vertex((0.239f / 2), (0.326f / 2), 0f);
+            //TheOpenGL.TexCoord(0f, 0f); TheOpenGL.Vertex(-(0.239f / 2), (0.326f / 2), 0f);
+            //TheOpenGL.End();
+            //TheOpenGL.PopMatrix();
+        }
+
+        private void DrawForeground()
+        {
+            Foreground.Bind(TheOpenGL);
+            TheOpenGL.Begin(OpenGL.GL_QUADS);
+            TheOpenGL.Color(1f, 1f, 1f);
+            TheOpenGL.TexCoord(0f, 1f); TheOpenGL.Vertex(-(1.280f / 2), -(0.720f / 2), 0f);
+            TheOpenGL.TexCoord(1f, 1f); TheOpenGL.Vertex((1.280f / 2), -(0.720f / 2), 0f);
+            TheOpenGL.TexCoord(1f, 0f); TheOpenGL.Vertex((1.280f / 2), (0.720f / 2), 0f);
+            TheOpenGL.TexCoord(0f, 0f); TheOpenGL.Vertex(-(1.280f / 2), (0.720f / 2), 0f);
+            TheOpenGL.End();
         }
     }
 }
